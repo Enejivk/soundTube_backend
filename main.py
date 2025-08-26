@@ -10,13 +10,17 @@ from threading import Lock
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
 )
+
 
 def sanitize_filename(name):
     return re.sub(r'[\\/*?:"<>|]', "_", name)
@@ -54,6 +58,7 @@ async def download_audio(
     url: str = Form(...),
     request: Request = None
 ):
+    
     client_ip = request.client.host if request else "unknown"
     if is_rate_limited(client_ip):
         raise HTTPException(status_code=429, detail="Too Many Requests")
