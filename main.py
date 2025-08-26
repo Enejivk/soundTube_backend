@@ -57,12 +57,15 @@ async def download_audio(
     client_ip = request.client.host if request else "unknown"
     if is_rate_limited(client_ip):
         raise HTTPException(status_code=429, detail="Too Many Requests")
+    
     with yt_dlp.YoutubeDL({}) as ydl:
         info = ydl.extract_info(url, download=False)
-        title = info.get('title', 'music')
+        
+        title = info.get('title')
+        print(title)
         safe_title = sanitize_filename(title)
         output_filename = f"{safe_title}.mp3"
-
+    
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': safe_title,
